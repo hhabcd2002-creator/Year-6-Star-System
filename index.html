@@ -74,6 +74,12 @@
           <h2 id="detail-name" class="text-3xl font-extrabold text-white tracking-wide"></h2>
         </div>
 
+        <div class="mb-10 bg-slate-950/60 border border-slate-800/80 p-5 rounded-2xl">
+          <h3 class="text-xs uppercase font-bold text-amber-500 tracking-widest mb-4 text-center sm:text-left">🏆 Exam Leaderboard Medals</h3>
+          <div id="exam-medals-container" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
+            </div>
+        </div>
+
         <div class="mb-10">
           <h3 class="text-xs uppercase font-bold text-slate-500 tracking-widest mb-4 text-center sm:text-left">Earned Milestone Badges</h3>
           <div id="badge-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -106,6 +112,9 @@
       Purple: { label: 'Special Recognition', color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'border-purple-500/20', desc: 'Special custom awards designated for standout achievements.', specialAnim: true }
     };
 
+    // List of Exam Months/Terms to Check for 🥇
+    const examTerms = ["July", "Aug", "Sep", "1st Term", "Nov", "Jan", "Feb", "2nd Term"];
+
     // Initialize Dashboard Data Fetch on Load
     window.addEventListener('DOMContentLoaded', fetchDashboardData);
 
@@ -130,7 +139,6 @@
 
       studentsData.forEach((student, index) => {
         const card = document.createElement('div');
-        // Custom Premium Glowing Golden Border System implemented natively
         card.className = `
           bg-slate-900 rounded-2xl p-7 border border-amber-500/30 shadow-[0_4px_20px_rgba(0,0,0,0.3)]
           hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] 
@@ -158,9 +166,30 @@
       document.getElementById('home-page').classList.add('hidden');
       document.getElementById('detail-page').classList.remove('hidden');
 
-      // Populate Name & Root Image targets natively matching your sheet configuration
+      // Populate Name & Root Image targets
       document.getElementById('detail-name').innerText = student.Name;
       document.getElementById('detail-avatar').src = student.Image;
+
+      // Render 🥇 Exam Leaderboard Medals Dynamically
+      const medalsContainer = document.getElementById('exam-medals-container');
+      medalsContainer.innerHTML = '';
+      
+      let hasAnyMedal = false;
+
+      examTerms.forEach(term => {
+        // ဆရာက Sheet ထဲမှာ 1 လို့ ရေးပေးထားရင် ဆုရတယ်လို့ သတ်မှတ်ခြင်း
+        if (student[term] === 1) {
+          hasAnyMedal = true;
+          const medalBadge = document.createElement('div');
+          medalBadge.className = "inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-full text-xs font-bold text-amber-400 shadow-sm animate-pulse";
+          medalBadge.innerHTML = `<span>${term}</span> 🥇`;
+          medalsContainer.appendChild(medalBadge);
+        }
+      });
+
+      if (!hasAnyMedal) {
+        medalsContainer.innerHTML = `<span class="text-xs text-slate-500 font-medium italic">No exam medals unlocked yet. Keep up the hard work!</span>`;
+      }
 
       // Unpack Badge Milestones Evaluation System
       const badgeContainer = document.getElementById('badge-container');
@@ -206,13 +235,11 @@
         const row = document.createElement('div');
         row.className = `p-4 rounded-xl border ${config.bg} ${config.border} flex flex-col sm:flex-row sm:items-center justify-between gap-4`;
 
-        // Safely map stars visuals loops
         let starsHTML = '';
         if (count === 0) {
           starsHTML = `<span class="text-xs text-slate-600 font-medium italic">No stars earned yet</span>`;
         } else {
           for (let i = 0; i < count; i++) {
-            // Apply unique custom blink animation engine class specifically if Purple is processing
             const animClass = config.specialAnim ? 'animate-purple-star inline-block' : '';
             starsHTML += `
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ${config.color} ${animClass} fill-current" viewBox="0 0 20 20">
