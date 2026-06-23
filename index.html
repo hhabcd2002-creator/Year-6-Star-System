@@ -20,6 +20,30 @@
     .animate-purple-star {
       animation: purple-glow 1.8s infinite ease-in-out;
     }
+
+    /* Gold Card Glow Animation for Term Champions */
+    @keyframes gold-card-glow {
+      0%, 100% {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 12px rgba(245, 158, 11, 0.3);
+        border-color: rgba(245, 158, 11, 0.5);
+      }
+      50% {
+        box-shadow: 0 4px 25px rgba(0,0,0,0.4), 0 0 25px rgba(245, 158, 11, 0.7);
+        border-color: rgba(245, 158, 11, 0.9);
+      }
+    }
+    .term-glow-card {
+      animation: gold-card-glow 2s infinite ease-in-out;
+    }
+
+    /* Badge Pulse Glow Animation */
+    @keyframes badge-glow {
+      0%, 100% { filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4)); }
+      50% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.9)); }
+    }
+    .tier-glowing {
+      animation: badge-glow 1.5s infinite ease-in-out;
+    }
     
     /* Smooth page fade-in transition */
     .fade-in {
@@ -67,7 +91,10 @@
         
         <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-yellow-500 via-emerald-500 via-blue-500 via-red-500 to-purple-500"></div>
 
-        <div class="flex flex-col items-center text-center border-b border-slate-800 pb-8 mb-8">
+        <div class="flex flex-col items-center text-center border-b border-slate-800 pb-8 mb-8 relative">
+          <div id="detail-queen-tag" class="hidden text-amber-400 font-extrabold text-xs tracking-widest uppercase bg-amber-500/10 border border-amber-500/30 px-4 py-1.5 rounded-full mb-4 animate-bounce">
+            👑 QUEEN OF THE CLASS 👑
+          </div>
           <div class="w-32 h-32 rounded-2xl bg-slate-950 border-2 border-slate-800 p-1 mb-5 overflow-hidden shadow-inner flex items-center justify-center">
             <img id="detail-avatar" src="" alt="Student Profile" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://placehold.co/150/1e293b/ffffff?text=Avatar'">
           </div>
@@ -76,7 +103,7 @@
 
         <div class="mb-10 bg-slate-950/60 border border-slate-800/80 p-5 rounded-2xl">
           <h3 class="text-xs uppercase font-bold text-amber-500 tracking-widest mb-4 text-center sm:text-left">🏆 Exam Leaderboard Medals</h3>
-          <div id="exam-medals-container" class="flex flex-wrap gap-2.5 justify-center sm:justify-start">
+          <div id="exam-medals-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             </div>
         </div>
 
@@ -98,12 +125,10 @@
   </main>
 
   <script>
-    // Connected Database URL
     const API_URL = 'https://script.google.com/macros/s/AKfycbxyIlWEP43XTnYnReMVO1zLvBDtNDOy3cjzLDFHOW02GmP4hBUwByy73xDSR0sbGW7xhA/exec';
     
     let studentsData = [];
 
-    // Criteria Meta-Configuration Mapping for Display Properties
     const starCriteria = {
       Gold: { label: 'Academic Excellence', color: 'text-yellow-400', bg: 'bg-yellow-500/5', border: 'border-yellow-500/20', desc: 'High test scores, accurate problem-solving, or exceptional work.' },
       Green: { label: 'Good Effort & Hard Work', color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'border-emerald-500/20', desc: 'Completing homework neatly or persistently working without giving up.' },
@@ -112,10 +137,8 @@
       Purple: { label: 'Special Recognition', color: 'text-purple-400', bg: 'bg-purple-500/5', border: 'border-purple-500/20', desc: 'Special custom awards designated for standout achievements.', specialAnim: true }
     };
 
-    // List of Exam Months/Terms to Check for 🥇
     const examTerms = ["July", "Aug", "Sep", "1st Term", "Nov", "Jan", "Feb", "2nd Term"];
 
-    // Initialize Dashboard Data Fetch on Load
     window.addEventListener('DOMContentLoaded', fetchDashboardData);
 
     async function fetchDashboardData() {
@@ -132,20 +155,48 @@
       }
     }
 
-    // Page 1 View Generation: Student Grid Layout
+    // Page 1: Main Grid Generation with Term Rules
     function renderHomeGrid() {
       const grid = document.getElementById('student-grid');
       grid.innerHTML = '';
 
       studentsData.forEach((student, index) => {
-        const card = document.createElement('div');
-        card.className = `
-          bg-slate-900 rounded-2xl p-7 border border-amber-500/30 shadow-[0_4px_20px_rgba(0,0,0,0.3)]
-          hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] 
-          cursor-pointer transform hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center min-h-[150px]
+        // စာမေးပွဲကြီး (၁) ကြိမ် သို့မဟုတ် (၂) ကြိမ်လုံးရထားလား တွက်ချက်ခြင်း
+        const term1Wins = student["1st Term"] === 1 ? 1 : 0;
+        const term2Wins = student["2nd Term"] === 1 ? 1 : 0;
+        const totalTermWins = term1Wins + term2Wins;
+
+        let cardClasses = `
+          bg-slate-900 rounded-2xl p-7 border flex flex-col items-center justify-center min-h-[160px] relative
+          cursor-pointer transform hover:-translate-y-1 transition-all duration-300
         `;
+        
+        let crownHeaderHTML = '';
+
+        if (totalTermWins >= 2) {
+          // စာမေးပွဲကြီး ၂ ကြိမ်လုံးရသူ - Glow Card + Queen of the Class စာသား
+          cardClasses += " term-glow-card border-amber-400";
+          crownHeaderHTML = `
+            <div class="absolute -top-3 inset-x-0 flex justify-center">
+              <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[9px] uppercase tracking-widest px-3 py-0.5 rounded-full shadow-md border border-amber-300">
+                👑 QUEEN OF THE CLASS
+              </span>
+            </div>
+          `;
+        } else if (totalTermWins === 1) {
+          // စာမေးပွဲကြီး ၁ ကြိမ်ပဲရသူ - Glow Card ဖြစ်နေမည်
+          cardClasses += " term-glow-card border-amber-500/70";
+        } else {
+          // သာမန်အချိန်
+          cardClasses += " border-slate-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-amber-500/40";
+        }
+
+        const card = document.createElement('div');
+        card.className = cardClasses;
         card.onclick = () => showStudentDetails(index);
+        
         card.innerHTML = `
+          ${crownHeaderHTML}
           <span class="text-[10px] font-bold uppercase tracking-widest text-amber-500/70 mb-2">Student Profile</span>
           <h3 class="text-xl font-bold text-white tracking-wide text-center">${student.Name}</h3>
         `;
@@ -153,45 +204,103 @@
       });
     }
 
-    // Simple Route Navigation State Managers
     function showHomePage() {
       document.getElementById('detail-page').classList.add('hidden');
       document.getElementById('home-page').classList.remove('hidden');
     }
 
-    // Page 2 View Generation: Detailed Individual Metrics
+    // Page 2: Detailed Profile Screen with Advanced Badge Tiers
     function showStudentDetails(index) {
       const student = studentsData[index];
       
       document.getElementById('home-page').classList.add('hidden');
       document.getElementById('detail-page').classList.remove('hidden');
 
-      // Populate Name & Root Image targets
       document.getElementById('detail-name').innerText = student.Name;
       document.getElementById('detail-avatar').src = student.Image;
 
-      // Render 🥇 Exam Leaderboard Medals Dynamically
-      const medalsContainer = document.getElementById('exam-medals-container');
-      medalsContainer.innerHTML = '';
-      
-      let hasAnyMedal = false;
-
-      examTerms.forEach(term => {
-        // ဆရာက Sheet ထဲမှာ 1 လို့ ရေးပေးထားရင် ဆုရတယ်လို့ သတ်မှတ်ခြင်း
-        if (student[term] === 1) {
-          hasAnyMedal = true;
-          const medalBadge = document.createElement('div');
-          medalBadge.className = "inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-full text-xs font-bold text-amber-400 shadow-sm animate-pulse";
-          medalBadge.innerHTML = `<span>${term}</span> 🥇`;
-          medalsContainer.appendChild(medalBadge);
-        }
-      });
-
-      if (!hasAnyMedal) {
-        medalsContainer.innerHTML = `<span class="text-xs text-slate-500 font-medium italic">No exam medals unlocked yet. Keep up the hard work!</span>`;
+      // Check Queen Tag in Profile Header
+      const term1Wins = student["1st Term"] === 1 ? 1 : 0;
+      const term2Wins = student["2nd Term"] === 1 ? 1 : 0;
+      if (term1Wins + term2Wins >= 2) {
+        document.getElementById('detail-queen-tag').classList.remove('hidden');
+      } else {
+        document.getElementById('detail-queen-tag').classList.add('hidden');
       }
 
-      // Unpack Badge Milestones Evaluation System
+      // Render Exam Medals using advanced progressive Gamification Tier rules
+      const medalsContainer = document.getElementById('exam-medals-container');
+      medalsContainer.innerHTML = '';
+
+      examTerms.forEach(term => {
+        const winCount = parseInt(student[term], 10) || 0;
+        
+        const card = document.createElement('div');
+        let cardStyle = "flex flex-col items-center p-3 rounded-xl border text-center transition-all duration-300 relative overflow-hidden ";
+        let badgeContent = "";
+
+        if (winCount === 0) {
+          // Locked Badge
+          cardStyle += "bg-slate-950/40 border-slate-900 text-slate-600 opacity-20 select-none";
+          badgeContent = `
+            <div class="text-2xl mb-1 filter grayscale">🥇</div>
+            <div class="text-[10px] font-bold tracking-wide">${term}</div>
+            <div class="text-[9px] mt-1 font-bold text-slate-600">LOCKED</div>
+          `;
+        } else if (winCount === 1) {
+          // Tier 1: Unlocked (Normal)
+          cardStyle += "bg-slate-800/60 border-slate-700/60 text-white shadow-md";
+          badgeContent = `
+            <div class="text-2xl mb-1">🥇</div>
+            <div class="text-[10px] font-extrabold tracking-wide text-amber-400">${term}</div>
+            <div class="text-[9px] mt-1 font-bold text-slate-400">UNLOCKED</div>
+          `;
+        } else if (winCount === 2) {
+          // Tier 2: Glowing Shine
+          cardStyle += "bg-slate-800 border-amber-500/50 text-white shadow-lg tier-glowing";
+          badgeContent = `
+            <div class="text-2xl mb-1">🥇</div>
+            <div class="text-[10px] font-extrabold tracking-wide text-amber-300">${term}</div>
+            <div class="text-[9px] mt-1 font-black text-amber-400 tracking-wider">GLOWING</div>
+          `;
+        } else if (winCount === 3) {
+          // Tier 3: Super Badge (+ Super corner ribbon)
+          cardStyle += "bg-slate-800/90 border-amber-400 text-white shadow-xl tier-glowing";
+          badgeContent = `
+            <div class="absolute top-0 right-0 bg-blue-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">SUPER</div>
+            <div class="text-2xl mb-1">🥇</div>
+            <div class="text-[10px] font-extrabold tracking-wide text-amber-200">${term}</div>
+            <div class="text-[9px] mt-1 font-black text-blue-400 tracking-widest">SUPER</div>
+          `;
+        } else if (winCount === 4) {
+          // Tier 4: Ultra Badge (Metallic Golden Gradient Background)
+          cardStyle += "bg-gradient-to-br from-amber-600/30 via-yellow-500/20 to-amber-900/30 border-yellow-400 text-white shadow-2xl tier-glowing";
+          badgeContent = `
+            <div class="absolute top-0 right-0 bg-red-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">ULTRA</div>
+            <div class="text-2xl mb-1">🥇</div>
+            <div class="text-[10px] font-black tracking-wide text-yellow-300">${term}</div>
+            <div class="text-[9px] mt-1 font-black text-red-400 tracking-widest">ULTRA</div>
+          `;
+        } else if (winCount >= 5) {
+          // Tier 5: Crowned Mythic (Crown Added)
+          cardStyle += "bg-gradient-to-br from-purple-950/40 via-amber-500/20 to-slate-900 border-amber-400 text-white shadow-2xl tier-glowing";
+          badgeContent = `
+            <div class="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">MYTHIC</div>
+            <div class="text-2xl mb-0.5 relative">
+              <span class="absolute -top-2.5 left-1/2 transform -translate-x-1/2 text-[11px]">👑</span>
+              🥇
+            </div>
+            <div class="text-[10px] font-black tracking-wide text-yellow-200">${term}</div>
+            <div class="text-[9px] mt-1 font-black text-purple-400 tracking-widest">MYTHIC</div>
+          `;
+        }
+
+        card.className = cardStyle;
+        card.innerHTML = badgeContent;
+        medalsContainer.appendChild(card);
+      });
+
+      // Render Milestone Badges
       const badgeContainer = document.getElementById('badge-container');
       badgeContainer.innerHTML = '';
 
@@ -224,7 +333,7 @@
         badgeContainer.appendChild(element);
       });
 
-      // Build out Rows presenting Star Ledger Accumulation 
+      // Render Star Categories Ledger
       const starsListContainer = document.getElementById('star-categories-container');
       starsListContainer.innerHTML = '';
 
