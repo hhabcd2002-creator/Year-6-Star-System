@@ -80,7 +80,7 @@
       </header>
       
       <div id="student-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-center max-w-3xl mx-auto">
-        </div>
+      </div>
     </section>
 
     <section id="detail-page" class="hidden fade-in max-w-2xl mx-auto">
@@ -109,19 +109,19 @@
         <div class="mb-10 bg-slate-950/60 border border-slate-800/80 p-5 rounded-2xl">
           <h3 class="text-xs uppercase font-bold text-amber-500 tracking-widest mb-4 text-center sm:text-left">🏆 Exam Leaderboard Medals</h3>
           <div id="exam-medals-container" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            </div>
+          </div>
         </div>
 
         <div class="mb-10">
           <h3 class="text-xs uppercase font-bold text-slate-500 tracking-widest mb-4 text-center sm:text-left">Earned Milestone Badges</h3>
-          <div id="badge-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            </div>
+          <div id="badge-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+          </div>
         </div>
 
         <div>
           <h3 class="text-xs uppercase font-bold text-slate-500 tracking-widest mb-4 text-center sm:text-left">Star Categories Ledger</h3>
           <div id="star-categories-container" class="space-y-4">
-            </div>
+          </div>
         </div>
 
       </div>
@@ -160,7 +160,18 @@
       }
     }
 
-    // Page 1: Main Grid Generation (Term Exams စည်းမျဉ်းအရ ကတ်ပြား + နာမည်စာသားပါ Glow စနစ်)
+    // Helper: Test ပွဲစဉ် (၆ ပွဲ/လစဉ်စာမေးပွဲ) များမှ နိုင်သော အရေအတွက်ကို တွက်ရန် (1st & 2nd Term မပါဝင်ပါ)
+    function getTestWinsCount(student) {
+      let count = 0;
+      allExamTerms.forEach(term => {
+        if (term !== "1st Term" && term !== "2nd Term" && student[term] === 1) {
+          count++;
+        }
+      });
+      return count;
+    }
+
+    // Page 1: Main Grid Generation
     function renderHomeGrid() {
       const grid = document.getElementById('student-grid');
       grid.innerHTML = '';
@@ -169,24 +180,24 @@
         const term1Wins = student["1st Term"] === 1 ? 1 : 0;
         const term2Wins = student["2nd Term"] === 1 ? 1 : 0;
         const totalTermWins = term1Wins + term2Wins;
+        const totalTestWins = getTestWinsCount(student);
 
         let cardClasses = `
           bg-slate-900 rounded-2xl p-7 border flex flex-col items-center justify-center min-h-[160px] relative
           cursor-pointer transform hover:-translate-y-1 transition-all duration-300
         `;
         let nameClasses = "text-xl font-bold tracking-wide text-center transition-all duration-300 ";
-        let crownHeaderHTML = '';
+        let tagsListHTML = [];
 
+        // Term Exam စည်းမျဉ်းသစ် - ၁ ခုရရင် ရွှေရောင်လင်း၊ ၂ ခုရရင် Queen Of The Class ဖြစ်မည်။
         if (totalTermWins >= 2) {
           cardClasses += " term-glow-card border-amber-400";
           nameClasses += " term-glow-text text-white";
-          crownHeaderHTML = `
-            <div class="absolute -top-3 inset-x-0 flex justify-center">
-              <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[9px] uppercase tracking-widest px-3 py-0.5 rounded-full shadow-md border border-amber-300">
-                👑 QUEEN OF THE CLASS
-              </span>
-            </div>
-          `;
+          tagsListHTML.push(`
+            <span class="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[8px] uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-md border border-amber-300">
+              👑 QUEEN OF THE CLASS
+            </span>
+          `);
         } else if (totalTermWins === 1) {
           cardClasses += " term-glow-card border-amber-500/70";
           nameClasses += " term-glow-text text-white";
@@ -195,12 +206,30 @@
           nameClasses += " text-white";
         }
 
+        // Test စည်းမျဉ်းသစ် - ၅ ခု သို့မဟုတ် ၆ ခု ရရှိပါက Main Interface တွင် Genius Tag အပေါ်၌ ထပ်ပေါ်နေမည်။
+        if (totalTestWins === 5 || totalTestWins === 6) {
+          tagsListHTML.push(`
+            <span class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[8px] uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-md border border-purple-400 animate-pulse">
+              💡 GENIUS
+            </span>
+          `);
+        }
+
+        let finalHeaderHTML = '';
+        if (tagsListHTML.length > 0) {
+          finalHeaderHTML = `
+            <div class="absolute -top-3 inset-x-0 flex flex-col items-center gap-1">
+              ${tagsListHTML.join('')}
+            </div>
+          `;
+        }
+
         const card = document.createElement('div');
         card.className = cardClasses;
         card.onclick = () => showStudentDetails(index);
         
         card.innerHTML = `
-          ${crownHeaderHTML}
+          ${finalHeaderHTML}
           <span class="text-[10px] font-bold uppercase tracking-widest text-amber-500/70 mb-2">Student Profile</span>
           <h3 class="${nameClasses}">${student.Name}</h3>
         `;
@@ -213,8 +242,9 @@
       document.getElementById('home-page').classList.remove('hidden');
     }
 
-    // Page 2: Detailed Profile Screen (Milestone Badges များ ကြယ်အရေအတွက်အတိုင်း သေချာစစ်ဆေးခြင်း)
+    // Page 2: Detailed Profile Screen
     function showStudentDetails(index) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       const student = studentsData[index];
       
       document.getElementById('home-page').classList.add('hidden');
@@ -240,7 +270,7 @@
 
       document.getElementById('detail-avatar').src = student.Image;
 
-      // ၁။ Render Exam Medals (လစဉ်စာမေးပွဲများကို ပုံမှန်အတိုင်း Unlocked/Locked ပြသခြင်း)
+      // ၁။ Render Exam Medals
       const medalsContainer = document.getElementById('exam-medals-container');
       medalsContainer.innerHTML = '';
 
@@ -261,11 +291,11 @@
         medalsContainer.appendChild(card);
       });
 
-      // ၂။ Render Milestone Badges (ကြယ်အရေအတွက် တစ်လုံးချင်းစီအလိုက် တိတိကျကျ စစ်ဆေးပြီး Tier မြှင့်တင်ခြင်း)
+      // ၂။ Render Milestone Badges (Star Mile Stones အသစ် + Genius Badge စနစ်သစ်)
       const badgeContainer = document.getElementById('badge-container');
       badgeContainer.innerHTML = '';
 
-      const badgesConfig = [
+      const starBadgesConfig = [
         { key: 'Gold', icon: '🏆', title: 'Academic Master' },
         { key: 'Green', icon: '💪', title: 'Hard Worker' },
         { key: 'Blue', icon: '🗣️', title: 'Super Participant' },
@@ -273,39 +303,39 @@
         { key: 'Purple', icon: '⭐', title: 'Star of Class' }
       ];
 
-      badgesConfig.forEach(badge => {
+      // Star Badges Logic မွမ်းမံခြင်း (5, 10, 20, 50, 100)
+      starBadgesConfig.forEach(badge => {
         const currentCount = parseInt(student[badge.key], 10) || 0;
-        
         const element = document.createElement('div');
         let cardStyle = "flex flex-col items-center p-3 rounded-xl border text-center transition-all duration-300 relative overflow-hidden ";
         let badgeContent = "";
 
-        if (currentCount === 0) {
-          // Locked State (ကြယ် လုံးဝမရှိသေးပါက)
+        if (currentCount < 5) {
+          // Locked (၅ လုံးအောက်)
           cardStyle += "bg-slate-950/40 border-slate-900 text-slate-600 opacity-25 select-none";
           badgeContent = `
             <div class="text-2xl mb-1.5 filter grayscale">${badge.icon}</div>
             <div class="text-[10px] font-extrabold leading-tight tracking-wide">${badge.title}</div>
-            <div class="text-[9px] mt-1 font-bold text-slate-600">LOCKED (0/1)</div>
+            <div class="text-[9px] mt-1 font-bold text-slate-600">LOCKED (${currentCount}/5)</div>
           `;
-        } else if (currentCount === 1) {
-          // Tier 1: Unlocked (Normal) - ကြယ် ၁ လုံးရှိလျှင် ပွင့်မည်
+        } else if (currentCount >= 5 && currentCount < 10) {
+          // Unlocked (၅ လုံးပြည့်လျှင်)
           cardStyle += "bg-slate-800/60 border-slate-700/60 text-white shadow-md";
           badgeContent = `
             <div class="text-2xl mb-1.5">${badge.icon}</div>
             <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-400">${badge.title}</div>
             <div class="text-[9px] mt-1 font-bold text-slate-400">UNLOCKED</div>
           `;
-        } else if (currentCount === 2) {
-          // Tier 2: Glowing Shine - ကြယ် ၂ လုံးရှိလျှင်
+        } else if (currentCount >= 10 && currentCount < 20) {
+          // Glowing (၁၀ လုံးပြည့်လျှင်)
           cardStyle += "bg-slate-800 border-amber-500/50 text-white shadow-lg tier-glowing";
           badgeContent = `
             <div class="text-2xl mb-1.5">${badge.icon}</div>
             <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-300">${badge.title}</div>
             <div class="text-[9px] mt-1 font-black text-amber-400 tracking-wider">GLOWING</div>
           `;
-        } else if (currentCount === 3) {
-          // Tier 3: Super Badge (+ Ribbon) - ကြယ် ၃ လုံးရှိလျှင်
+        } else if (currentCount >= 20 && currentCount < 50) {
+          // Super (၂၀ ပြည့်လျှင်)
           cardStyle += "bg-slate-800/90 border-amber-400 text-white shadow-xl tier-glowing";
           badgeContent = `
             <div class="absolute top-0 right-0 bg-blue-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">SUPER</div>
@@ -313,8 +343,8 @@
             <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-200">${badge.title}</div>
             <div class="text-[9px] mt-1 font-black text-blue-400 tracking-widest">SUPER</div>
           `;
-        } else if (currentCount === 4) {
-          // Tier 4: Ultra Badge (Metallic Golden Background) - ကြယ် ၄ လုံးရှိလျှင်
+        } else if (currentCount >= 50 && currentCount < 100) {
+          // Ultra (၅၀ ပြည့်လျှင်)
           cardStyle += "bg-gradient-to-br from-amber-600/30 via-yellow-500/20 to-amber-900/30 border-yellow-400 text-white shadow-2xl tier-glowing";
           badgeContent = `
             <div class="absolute top-0 right-0 bg-red-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">ULTRA</div>
@@ -322,8 +352,8 @@
             <div class="text-[10px] font-black leading-tight tracking-wide text-yellow-300">${badge.title}</div>
             <div class="text-[9px] mt-1 font-black text-red-400 tracking-widest">ULTRA</div>
           `;
-        } else if (currentCount >= 5) {
-          // Tier 5: Crowned Mythic (👑 သရဖူ) - ကြယ် ၅ လုံးနှင့် အထက်ရှိလျှင်
+        } else if (currentCount >= 100) {
+          // Crown Mythic (၁၀၀ ပြည့်လျှင်)
           cardStyle += "bg-gradient-to-br from-purple-950/40 via-amber-500/20 to-slate-900 border-amber-400 text-white shadow-2xl tier-glowing";
           badgeContent = `
             <div class="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">MYTHIC</div>
@@ -332,7 +362,7 @@
               ${badge.icon}
             </div>
             <div class="text-[10px] font-black leading-tight tracking-wide text-yellow-200">${badge.title}</div>
-            <div class="text-[9px] mt-1 font-black text-purple-400 tracking-widest">MYTHIC</div>
+            <div class="text-[9px] mt-1 font-black text-purple-400 tracking-widest">CROWN</div>
           `;
         }
 
@@ -340,6 +370,60 @@
         element.innerHTML = badgeContent;
         badgeContainer.appendChild(element);
       });
+
+      // 💡 Genius Badge တွက်ချက်ခြင်းအပိုင်း (လစဉ်ပွဲများအပေါ်မူတည်၍ ၁၊ ၂၊ ၃၊ ၄+ အရ)
+      const totalTestWins = getTestWinsCount(student);
+      const geniusElement = document.createElement('div');
+      let geniusStyle = "flex flex-col items-center p-3 rounded-xl border text-center transition-all duration-300 relative overflow-hidden ";
+      let geniusContent = "";
+      let geniusTitle = totalTestWins >= 4 ? "Genius of Class" : "Genius";
+
+      if (totalTestWins === 0) {
+        geniusStyle += "bg-slate-950/40 border-slate-900 text-slate-600 opacity-25 select-none";
+        geniusContent = `
+          <div class="text-2xl mb-1.5 filter grayscale">💡</div>
+          <div class="text-[10px] font-extrabold leading-tight tracking-wide">${geniusTitle}</div>
+          <div class="text-[9px] mt-1 font-bold text-slate-600">LOCKED (0/1)</div>
+        `;
+      } else if (totalTestWins === 1) {
+        // 1 လုံးရှိလျှင် Unlocked
+        geniusStyle += "bg-slate-800/60 border-slate-700/60 text-white shadow-md";
+        geniusContent = `
+          <div class="text-2xl mb-1.5">💡</div>
+          <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-400">${geniusTitle}</div>
+          <div class="text-[9px] mt-1 font-bold text-slate-400">UNLOCKED</div>
+        `;
+      } else if (totalTestWins === 2) {
+        // 2 လုံးရှိလျှင် Glowing
+        geniusStyle += "bg-slate-800 border-amber-500/50 text-white shadow-lg tier-glowing";
+        geniusContent = `
+          <div class="text-2xl mb-1.5">💡</div>
+          <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-300">${geniusTitle}</div>
+          <div class="text-[9px] mt-1 font-black text-amber-400 tracking-wider">GLOWING</div>
+        `;
+      } else if (totalTestWins === 3) {
+        // 3 လုံးရှိလျှင် အပေါ်၌ Super အမွှေပါမည်
+        geniusStyle += "bg-slate-800/90 border-amber-400 text-white shadow-xl tier-glowing";
+        geniusContent = `
+          <div class="absolute top-0 right-0 bg-blue-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">SUPER</div>
+          <div class="text-2xl mb-1.5">💡</div>
+          <div class="text-[10px] font-extrabold leading-tight tracking-wide text-amber-200">${geniusTitle}</div>
+          <div class="text-[9px] mt-1 font-black text-blue-400 tracking-widest">SUPER</div>
+        `;
+      } else if (totalTestWins >= 4) {
+        // 4 လုံးနှင့်အထက်ရှိလျှင် Genius of Class အဖြစ်ပြောင်းလဲမည်
+        geniusStyle += "bg-gradient-to-br from-purple-900/40 via-indigo-500/20 to-slate-900 border-indigo-400 text-white shadow-2xl tier-glowing";
+        geniusContent = `
+          <div class="absolute top-0 right-0 bg-indigo-600 text-white font-black text-[7px] px-1.5 py-0.5 uppercase tracking-tighter rounded-bl-md">MASTER</div>
+          <div class="text-2xl mb-1.5">💡</div>
+          <div class="text-[10px] font-black leading-tight tracking-wide text-indigo-300">${geniusTitle}</div>
+          <div class="text-[9px] mt-1 font-black text-purple-400 tracking-widest">GENIUS</div>
+        `;
+      }
+
+      geniusElement.className = geniusStyle;
+      geniusElement.innerHTML = geniusContent;
+      badgeContainer.appendChild(geniusElement);
 
       // ၃။ Render Star Categories Ledger
       const starsListContainer = document.getElementById('star-categories-container');
