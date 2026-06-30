@@ -19,58 +19,7 @@
     animation: twinkle 3s infinite ease-in-out; 
   }
   @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    /* Premium Elegant Custom Animations */
-    @keyframes purple-glow {
-      0%, 100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.7)) drop-shadow(0 0 12px rgba(168, 85, 247, 0.4));
-      }
-      50% {
-        transform: scale(1.15);
-        filter: drop-shadow(0 0 18px rgba(168, 85, 247, 1)) drop-shadow(0 0 28px rgba(168, 85, 247, 0.7));
-      }
-    }
-    .animate-purple-star {
-      animation: purple-glow 1.8s infinite ease-in-out;
-    }
-
-    /* Term Champion Card & Name text Neon Glow Animation */
-    @keyframes gold-text-card-glow {
-      0%, 100% {
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 12px rgba(245, 158, 11, 0.3);
-        border-color: rgba(245, 158, 11, 0.5);
-        text-shadow: 0 0 5px rgba(245, 158, 11, 0.4);
-      }
-      50% {
-        box-shadow: 0 4px 25px rgba(0,0,0,0.4), 0 0 25px rgba(245, 158, 11, 0.7);
-        border-color: rgba(245, 158, 11, 0.9);
-        text-shadow: 0 0 15px rgba(251, 191, 36, 1), 0 0 25px rgba(245, 158, 11, 0.6);
-      }
-    }
-    .term-glow-card {
-      animation: gold-text-card-glow 2s infinite ease-in-out;
-    }
-    .term-glow-text {
-      color: #fbbf24 !important;
-    }
-
-    /* Milestone Badge Pulse Glow Animation (Tier 2 and above) */
-    @keyframes badge-glow {
-      0%, 100% { filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4)); }
-      50% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.8)); }
-    }
-    .tier-glowing {
-      animation: badge-glow 1.5s infinite ease-in-out;
-    }
     
-    /* Smooth page fade-in transition */
-    .fade-in {
-      animation: fadeIn 0.4s ease-out forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-amber-500/30">
