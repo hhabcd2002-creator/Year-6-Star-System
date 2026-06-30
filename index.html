@@ -5,7 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Achievement Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
+    <style>
+  /* Galaxy Background Styling */
+  body { 
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); 
+    min-height: 100vh; 
+  }
+  .stars-container { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; 
+  }
+  .star { 
+    position: absolute; background: white; border-radius: 50%; 
+    animation: twinkle 3s infinite ease-in-out; 
+  }
+  @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     /* Premium Elegant Custom Animations */
     @keyframes purple-glow {
       0%, 100% {
